@@ -275,7 +275,7 @@ local function applyGravityEffect(player, tool)
 	local useJumpPower = humanoid.UseJumpPower
 
 	if useJumpPower then
-		humanoid.JumpPower = 75
+		humanoid.JumpPower = 72
 	else
 		humanoid.JumpHeight = 18
 	end
