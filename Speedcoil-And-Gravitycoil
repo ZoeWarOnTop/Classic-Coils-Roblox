@@ -1,4 +1,4 @@
--- Script em ServerScriptService
+-- Script in ServerScriptService
 -- Classic Speed Coil + Gravity Coil
 -- Startup message added
 
@@ -6,18 +6,18 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
--- Configurações
+-- Configuration
 local SPEED_COIL_SPEED = 32
 local GRAVITY_REDUCTION = 0.75
 
--- Assets clássicos
+-- Classic assets
 local MESH_ID = "rbxassetid://16606212"
 
--- Texturas do mesh
+-- Mesh textures
 local SPEED_MESH_TEXTURE = "rbxassetid://99170547"
 local GRAVITY_MESH_TEXTURE = "rbxassetid://16606141"
 
--- Ícones do inventário
+-- Inventory icons
 local SPEED_ICON = "rbxassetid://99170415"
 local GRAVITY_ICON = "rbxassetid://16619617"
 
@@ -29,7 +29,6 @@ local GRAVITY_SOUND = "rbxassetid://16619553"
 local function createStartupMessage(player)
 	local playerGui = player:WaitForChild("PlayerGui")
 
-	-- Prevent duplicates
 	if playerGui:FindFirstChild("ZoewarStartup") then
 		return
 	end
@@ -55,7 +54,6 @@ local function createStartupMessage(player)
 	corner.CornerRadius = UDim.new(0, 14)
 	corner.Parent = background
 
-	-- Frosted glass effect
 	local blur = Instance.new("BlurEffect")
 	blur.Name = "MessageBlur"
 	blur.Size = 0
@@ -87,7 +85,6 @@ local function createStartupMessage(player)
 	subtitle.TextTransparency = 1
 	subtitle.Parent = background
 
-	-- Smooth entrance
 	TweenService:Create(
 		title,
 		TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -106,10 +103,8 @@ local function createStartupMessage(player)
 		{Size = 8}
 	):Play()
 
-	-- Display time
 	task.wait(2.5)
 
-	-- Smooth disappearance
 	local fadeInfo = TweenInfo.new(
 		0.8,
 		Enum.EasingStyle.Quad,
@@ -133,7 +128,6 @@ local function createStartupMessage(player)
 	})
 
 	blurTween:Play()
-
 	blurTween.Completed:Wait()
 
 	blur:Destroy()
@@ -152,7 +146,7 @@ for _, player in ipairs(Players:GetPlayers()) do
 	end)
 end
 
--- ===================== CONTROLE DAS MOLAS =====================
+-- ===================== COIL CONTROL =====================
 
 local speedConnections = {}
 local gravityConnections = {}
@@ -169,6 +163,7 @@ local function removeSpeedEffect(player)
 	end
 
 	local character = player.Character
+
 	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 
@@ -182,11 +177,13 @@ local function applySpeedEffect(player, tool)
 	removeSpeedEffect(player)
 
 	local character = player.Character
+
 	if not character then
 		return
 	end
 
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
+
 	if not humanoid then
 		return
 	end
@@ -241,6 +238,7 @@ local function applyGravityEffect(player, tool)
 	removeGravityEffect(player)
 
 	local character = player.Character
+
 	if not character then
 		return
 	end
@@ -344,11 +342,12 @@ end
 local function createSpeedCoil(player)
 	local tool = Instance.new("Tool")
 
-	tool.Name = "Speed Coil"
+	tool.Name = "Zoewar Coil"
 	tool.ToolTip = "Speed Up!"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool.TextureId = SPEED_ICON
+	tool:SetAttribute("CoilType", "Speed")
 
 	local handle = Instance.new("Part")
 
@@ -389,11 +388,12 @@ end
 local function createGravityCoil(player)
 	local tool = Instance.new("Tool")
 
-	tool.Name = "Gravity Coil"
+	tool.Name = "Zoewar Coil"
 	tool.ToolTip = "Jump higher!"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool.TextureId = GRAVITY_ICON
+	tool:SetAttribute("CoilType", "Gravity")
 
 	local handle = Instance.new("Part")
 
@@ -431,6 +431,16 @@ end
 
 -- ===================== DELIVERY =====================
 
+local function hasCoil(container, coilType)
+	for _, item in ipairs(container:GetChildren()) do
+		if item:IsA("Tool") and item:GetAttribute("CoilType") == coilType then
+			return true
+		end
+	end
+
+	return false
+end
+
 local function giveCoils(player)
 
 	local function onCharacterAdded(character)
@@ -439,14 +449,14 @@ local function giveCoils(player)
 
 		local backpack = player:WaitForChild("Backpack")
 
-		if not backpack:FindFirstChild("Speed Coil")
-			and not character:FindFirstChild("Speed Coil") then
+		if not hasCoil(backpack, "Speed")
+			and not hasCoil(character, "Speed") then
 
 			createSpeedCoil(player).Parent = backpack
 		end
 
-		if not backpack:FindFirstChild("Gravity Coil")
-			and not character:FindFirstChild("Gravity Coil") then
+		if not hasCoil(backpack, "Gravity")
+			and not hasCoil(character, "Gravity") then
 
 			createGravityCoil(player).Parent = backpack
 		end
